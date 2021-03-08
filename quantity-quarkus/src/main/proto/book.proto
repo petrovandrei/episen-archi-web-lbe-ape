@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fr.upec.episen;
+
+option java_multiple_files = true;
+option java_package = "fr.upec.episen.proto";
+
+service Book{
+  rpc GetBookQuantity(BookQuantityRequest) returns (BookQuantityReply){}
+}
+
+message BookQuantityRequest{
+  string isbn = 1;
+}
+
+message BookQuantityReply{
+  string quantity = 1;
+}
