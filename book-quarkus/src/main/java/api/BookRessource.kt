@@ -1,107 +1,95 @@
-package api;
+package api
 
-import fr.upec.episen.proto.BookGrpc;
-import fr.upec.episen.proto.BookQuantityRequest;
-import fr.upec.episen.proto.RemoveBookQuantityRequest;
-import io.quarkus.grpc.runtime.annotations.GrpcService;
-import model.Book;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.*;
+import fr.upec.episen.proto.BookGrpc
+import fr.upec.episen.proto.BookQuantityRequest
+import fr.upec.episen.proto.RemoveBookQuantityRequest
+import io.quarkus.grpc.runtime.annotations.GrpcService
+import model.Book
+import java.util.*
+import javax.inject.Inject
+import javax.ws.rs.*
+import javax.ws.rs.core.MediaType
 
 @Path("/books")
-public class BookRessource {
-
+class BookRessource {
     @Inject
     @GrpcService("quantity")
-    BookGrpc.BookBlockingStub bookGrpcService;
-
-    List<Book> books = new ArrayList<>();
+    var bookGrpcService: BookGrpc.BookBlockingStub? = null
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Book> getBooks() {
+    fun getBooks(): List<Book> {
+        val books: MutableList<Book> = ArrayList()
+
 
         // book 1
-        Book book1 = new Book("Baby Elephant Goes for a Swim", "11", "978-1-933624-46-4", "");
-        String isbn1 = book1.getIsbn();
-        book1.setQuantity(bookGrpcService.
-                getBookQuantity(BookQuantityRequest.newBuilder()
-                        .setIsbn(isbn1)
-                        .build())
-                .getQuantity()
-        );
+        val book1 = Book("Baby Elephant Goes for a Swim", "11", "978-1-933624-46-4", "")
+        val isbn1: String = book1.isbn
+        book1.quantity =(bookGrpcService!!.getBookQuantity(BookQuantityRequest.newBuilder()
+                .setIsbn(isbn1)
+                .build())
+                .quantity
+        )
 
 
         // book2
-        Book book2 = new Book("Baby Elephant Runs Away", "15", "978-1-933624-44-0", "");
-        String isbn2 = book2.getIsbn();
-        book2.setQuantity(bookGrpcService.
-                getBookQuantity(BookQuantityRequest.newBuilder()
-                        .setIsbn(isbn2)
-                        .build())
-                .getQuantity()
-        );
+        val book2 = Book("Baby Elephant Runs Away", "15", "978-1-933624-44-0", "")
+        val isbn2: String = book2.isbn
+        book2.quantity = (bookGrpcService!!.getBookQuantity(BookQuantityRequest.newBuilder()
+                .setIsbn(isbn2)
+                .build())
+                .quantity
+        )
 
         // book 3
-        Book book3 = new Book("Bats in Danny’s House", "19", "978-1-933624-95-2", "");
-        String isbn3 = book3.getIsbn();
-        book3.setQuantity(bookGrpcService.
-                getBookQuantity(BookQuantityRequest.newBuilder()
-                        .setIsbn(isbn3)
-                        .build())
-                .getQuantity()
-        );
+        val book3 = Book("Bats in Danny’s House", "19", "978-1-933624-95-2", "")
+        val isbn3: String = book3.isbn
+        book3.quantity =(bookGrpcService!!.getBookQuantity(BookQuantityRequest.newBuilder()
+                .setIsbn(isbn3)
+                .build())
+                .quantity
+        )
 
         // add books to list
-        books.add(book1);
-        books.add(book2);
-        books.add(book3);
-
-        return books;
+        books.add(book1)
+        books.add(book2)
+        books.add(book3)
+        return books
     }
 
     @POST
     @Path("/{isbn}/buy")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Book buyBook(@PathParam("isbn") String isbn, String quantity){
-        List<Book> booksBuy = new ArrayList<>();
+    fun buyBook(@PathParam("isbn") isbn: String?, quantity: String?): Book {
+        val booksBuy: MutableList<Book> = ArrayList()
 
         // book 1
-        Book book1 = new Book("Baby Elephant Goes for a Swim", "11", "978-1-933624-46-4", "");
+        val book1 = Book("Baby Elephant Goes for a Swim", "11", "978-1-933624-46-4", "")
 
 
         // book2
-        Book book2 = new Book("Baby Elephant Runs Away", "15", "978-1-933624-44-0", "");
+        val book2 = Book("Baby Elephant Runs Away", "15", "978-1-933624-44-0", "")
 
         // book 3
-        Book book3 = new Book("Bats in Danny’s House", "19", "978-1-933624-95-2", "");
+        val book3 = Book("Bats in Danny’s House", "19", "978-1-933624-95-2", "")
 
         // add books to list
-        booksBuy.add(book1);
-        booksBuy.add(book2);
-        booksBuy.add(book3);
-
-        for (Book book : booksBuy) {
-            if (book.getIsbn().equals(isbn)) {
-                book.setQuantity(bookGrpcService.
-                        removeBookQuantity(RemoveBookQuantityRequest.newBuilder()
-                                .setQuantity(quantity)
-                                .setIsbn(isbn)
-                                .build())
-                        .getQuantity());
+        booksBuy.add(book1)
+        booksBuy.add(book2)
+        booksBuy.add(book3)
+        for (book in booksBuy) {
+            if (book.isbn.equals(isbn)) {
+                book.quantity =(bookGrpcService!!.removeBookQuantity(RemoveBookQuantityRequest.newBuilder()
+                        .setQuantity(quantity)
+                        .setIsbn(isbn)
+                        .build())
+                        .quantity)
             }
         }
-
-        Book result = findByIsbn(isbn, booksBuy).get();
-        return result;
+        return findByIsbn(isbn, booksBuy).get()
     }
 
-
-
-public Optional<Book> findByIsbn(String isbn, List<Book> books) {
-    return books.stream().filter(book -> book.getIsbn().equals(isbn)).findFirst();
-}
+    fun findByIsbn(isbn: String?, books: List<Book>): Optional<Book> {
+        return books.stream().filter { book: Book -> book.isbn.equals(isbn) }.findFirst()
+    }
 }
