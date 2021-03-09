@@ -2,13 +2,12 @@ package api;
 
 import fr.upec.episen.proto.BookGrpc;
 import fr.upec.episen.proto.BookQuantityRequest;
+import fr.upec.episen.proto.RemoveBookQuantityRequest;
 import io.quarkus.grpc.runtime.annotations.GrpcService;
 import model.Book;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
@@ -63,4 +62,46 @@ public class BookRessource {
 
         return books;
     }
+
+    @POST
+    @Path("/{isbn}/buy")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Book buyBook(@PathParam("isbn") String isbn, String quantity){
+        List<Book> booksBuy = new ArrayList<>();
+
+        // book 1
+        Book book1 = new Book("Baby Elephant Goes for a Swim", "11", "978-1-933624-46-4", "");
+
+
+        // book2
+        Book book2 = new Book("Baby Elephant Runs Away", "15", "978-1-933624-44-0", "");
+
+        // book 3
+        Book book3 = new Book("Bats in Danny’s House", "19", "978-1-933624-95-2", "");
+
+        // add books to list
+        booksBuy.add(book1);
+        booksBuy.add(book2);
+        booksBuy.add(book3);
+
+        for (Book book : booksBuy) {
+            if (book.getIsbn().equals(isbn)) {
+                book.setQuantity(bookGrpcService.
+                        removeBookQuantity(RemoveBookQuantityRequest.newBuilder()
+                                .setQuantity(quantity)
+                                .setIsbn(isbn)
+                                .build())
+                        .getQuantity());
+            }
+        }
+
+        Book result = findByIsbn(isbn, booksBuy).get();
+        return result;
+    }
+
+
+
+public Optional<Book> findByIsbn(String isbn, List<Book> books) {
+    return books.stream().filter(book -> book.getIsbn().equals(isbn)).findFirst();
+}
 }

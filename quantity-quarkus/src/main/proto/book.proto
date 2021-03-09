@@ -7,6 +7,7 @@ option java_package = "fr.upec.episen.proto";
 
 service Book{
   rpc GetBookQuantity(BookQuantityRequest) returns (BookQuantityReply){}
+  rpc RemoveBookQuantity(RemoveBookQuantityRequest) returns (RemoveBookQuantityReply){}
 }
 
 message BookQuantityRequest{
@@ -14,5 +15,13 @@ message BookQuantityRequest{
 }
 
 message BookQuantityReply{
+  string quantity = 1;
+}
+message RemoveBookQuantityRequest{
+  string isbn = 1;
+  string quantity = 2;
+}
+
+message RemoveBookQuantityReply{
   string quantity = 1;
 }
